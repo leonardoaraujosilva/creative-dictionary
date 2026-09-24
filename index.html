@@ -1,0 +1,1749 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creative Dictionary</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            color-scheme: light;
+            --app-bg: #f7f7f8;
+            --surface: #ffffff;
+            --surface-soft: #f8fafc;
+            --text: #111827;
+            --text-muted: #64748b;
+            --border: #e5e7eb;
+            --accent: #ff385c;
+            --accent-soft: #fff2f4;
+            --accent-blue: #4f46e5;
+            --accent-sky: #0ea5e9;
+            --accent-green: #10b981;
+            --primary: #172033;
+            --primary-hover: #263149;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            min-height: 100%;
+            background: var(--app-bg);
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            min-height: 100dvh;
+            margin: 0;
+            font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background:
+                radial-gradient(circle at 50% -10%, rgba(255, 56, 92, 0.09), transparent 26rem),
+                radial-gradient(circle at 4% 20%, rgba(14, 165, 233, 0.045), transparent 20rem),
+                radial-gradient(circle at 96% 75%, rgba(79, 70, 229, 0.045), transparent 22rem),
+                var(--app-bg);
+            color: var(--text);
+            -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
+        }
+
+        button,
+        input,
+        textarea {
+            font: inherit;
+        }
+
+        button,
+        a {
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        button {
+            touch-action: manipulation;
+        }
+
+        button:focus-visible,
+        a:focus-visible,
+        input:focus-visible,
+        textarea:focus-visible {
+            outline: 3px solid rgba(225, 29, 72, 0.22);
+            outline-offset: 2px;
+        }
+
+        .app-header {
+            width: min(100%, 1080px);
+            min-height: 64px;
+            padding: 14px 20px;
+        }
+
+        .app-main {
+            width: min(100%, 600px);
+            min-height: calc(100dvh - 64px);
+            padding: 24px 16px 160px;
+        }
+
+        .screen {
+            display: none;
+            width: 100%;
+            animation: fadeIn 0.26s ease-out;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .glass-card {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            border-radius: 26px;
+            box-shadow:
+                0 2px 5px rgba(15, 23, 42, 0.03),
+                0 14px 38px rgba(15, 23, 42, 0.065);
+        }
+
+        .btn-primary {
+            min-height: 48px;
+            background: var(--primary);
+            color: white;
+            transition: transform 0.16s ease, background-color 0.16s ease, box-shadow 0.16s ease;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        .board-footer {
+            width: min(100% - 24px, 820px);
+            left: 50%;
+            right: auto;
+            bottom: max(12px, env(safe-area-inset-bottom));
+            transform: translateX(-50%);
+            padding: 12px 14px;
+            border-radius: 22px;
+            background: rgba(255, 255, 255, 0.94);
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.10);
+        }
+
+        .board-track-footer {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 4px 2px 5px;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-x;
+            cursor: grab;
+            user-select: none;
+            overscroll-behavior-x: contain;
+        }
+
+        .board-track-footer:active {
+            cursor: grabbing;
+        }
+
+        .board-space-footer {
+            min-width: 56px;
+            width: 56px;
+            height: 56px;
+            border-radius: 15px;
+            background: var(--surface-soft);
+            border: 1.5px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            font-weight: 800;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            flex: 0 0 56px;
+            overflow: hidden;
+        }
+
+        .board-space-footer.has-players {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        .token-container {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2px;
+            justify-content: center;
+            align-items: center;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.94);
+            z-index: 10;
+        }
+
+        .player-token {
+            width: 19px;
+            height: 19px;
+            border-radius: 50%;
+            border: 1.5px solid white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            font-size: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 800;
+        }
+
+        .choice-button {
+            width: 100%;
+            text-align: left;
+            padding: 14px 16px;
+            min-height: 52px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 16px;
+            background: #f8fafc;
+            color: #334155;
+            transition: border-color 0.16s ease, background-color 0.16s ease, box-shadow 0.16s ease;
+        }
+
+        .choice-button:hover:not(:disabled) {
+            border-color: #cbd5e1;
+            background: #ffffff;
+        }
+
+        .choice-button.selected {
+            border-color: #111827;
+            background: #ffffff;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.07);
+        }
+
+        .choice-button:disabled {
+            opacity: 0.42;
+            cursor: not-allowed;
+        }
+
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .brand {
+            flex: 1 1 auto;
+        }
+
+        .brand-mark {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            flex: 0 0 22px;
+            color: var(--accent) !important;
+            font-size: 1.05rem;
+            line-height: 1;
+            text-shadow: 0 3px 12px rgba(255, 56, 92, 0.22);
+        }
+
+        .brand-name {
+            font-weight: 650;
+            letter-spacing: -0.02em;
+        }
+
+        .header-actions {
+            flex: 0 0 auto;
+        }
+
+        .header-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            min-height: 40px;
+            padding: 8px 12px;
+            border: 1px solid rgba(226, 232, 240, 0.95);
+            border-radius: 13px;
+            background: rgba(255, 255, 255, 0.92);
+            color: #475569;
+            font-size: 0.75rem;
+            font-weight: 600;
+            line-height: 1;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.045);
+            transition: transform 0.16s ease, border-color 0.16s ease, background-color 0.16s ease, color 0.16s ease, box-shadow 0.16s ease;
+        }
+
+        .header-button:hover {
+            transform: translateY(-1px);
+            background: #ffffff;
+            border-color: #cbd5e1;
+            color: #1e293b;
+            box-shadow: 0 7px 18px rgba(15, 23, 42, 0.07);
+        }
+
+        .header-button:active {
+            transform: translateY(0);
+        }
+
+        .header-button-accent {
+            color: #e11d48;
+            background: #fff5f7;
+            border-color: #fecdd3;
+        }
+
+        .header-button-accent:hover {
+            color: #be123c;
+            border-color: #fda4af;
+            background: #fff1f2;
+        }
+
+        .language-card {
+            position: relative;
+            overflow: hidden;
+            min-height: 76px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, var(--language-soft, rgba(248, 250, 252, 0.82)), rgba(255, 255, 255, 0.92));
+            border: 1px solid rgba(226, 232, 240, 0.96);
+            transition: transform 0.16s ease, border-color 0.16s ease, background-color 0.16s ease, box-shadow 0.16s ease;
+        }
+
+        .language-card::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--language-accent, var(--accent));
+            opacity: 0.9;
+        }
+
+        .language-card:hover {
+            transform: translateY(-1px);
+            background: #ffffff;
+            border-color: rgba(203, 213, 225, 1);
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+        }
+
+        .language-card:active {
+            transform: translateY(0);
+        }
+
+        .language-flag {
+            width: 42px;
+            height: 42px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 42px;
+            border-radius: 13px;
+            background: #ffffff;
+            border: 1px solid rgba(226, 232, 240, 0.95);
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+        }
+
+        .language-flag-pt {
+            background: #f0fdf4;
+        }
+
+        .language-flag-en {
+            background: #eff6ff;
+        }
+
+        .language-flag-es {
+            background: #fff7ed;
+        }
+
+        .flag-svg {
+            width: 28px;
+            height: 19px;
+            display: block;
+            border-radius: 3px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.10);
+        }
+
+        .language-name {
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        .language-region {
+            color: #94a3b8;
+            font-size: 0.68rem;
+            font-weight: 500;
+        }
+
+        .language-arrow {
+            color: #94a3b8;
+            transition: transform 0.16s ease, color 0.16s ease;
+        }
+
+        .language-card:hover .language-arrow {
+            color: var(--language-accent, var(--accent));
+            transform: translateX(2px);
+        }
+
+        .language-intro h1 {
+            font-weight: 700;
+            letter-spacing: -0.035em;
+        }
+
+        .language-intro p {
+            font-weight: 400;
+        }
+
+        .player-color-picker {
+            display: grid;
+            grid-template-columns: repeat(12, minmax(0, 1fr));
+            gap: 8px;
+            padding: 8px 2px 2px;
+        }
+
+        .player-color-option {
+            width: 28px;
+            height: 28px;
+            margin: 0 auto;
+            padding: 0;
+            border: 2px solid transparent;
+            border-radius: 999px;
+            background: var(--player-color);
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.14);
+            cursor: pointer;
+            transition: transform 0.14s ease, box-shadow 0.14s ease, opacity 0.14s ease;
+        }
+
+        .player-color-option:hover { transform: scale(1.08); }
+
+        .player-color-option.selected {
+            border-color: #ffffff;
+            box-shadow: 0 0 0 2px var(--player-color), 0 3px 9px rgba(15, 23, 42, 0.16);
+            transform: scale(1.08);
+        }
+
+        .player-color-option.unavailable {
+            opacity: 0.22;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .player-color-option:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.18), 0 0 0 2px var(--player-color);
+        }
+
+        .player-color-hint {
+            margin-top: 7px;
+            color: #94a3b8;
+            font-size: 0.68rem;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        @media (min-width: 768px) {
+            .app-header {
+                padding-inline: 32px;
+            }
+
+            .app-main {
+                padding-inline: 24px;
+                padding-top: 32px;
+            }
+
+            .glass-card {
+                border-radius: 28px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .app-header {
+                min-height: 58px;
+                padding: 10px 12px;
+            }
+
+            .header-actions {
+                gap: 5px;
+            }
+
+            .header-button {
+                min-height: 38px;
+                padding-inline: 9px;
+                border-radius: 12px;
+            }
+
+            .app-main {
+                min-height: calc(100dvh - 58px);
+                padding: 12px 10px 150px;
+            }
+
+            .glass-card {
+                border-radius: 22px;
+            }
+
+            .board-footer {
+                width: calc(100% - 16px);
+                bottom: max(8px, env(safe-area-inset-bottom));
+                padding: 10px 10px 9px;
+                border-radius: 20px;
+            }
+
+            .board-space-footer {
+                min-width: 52px;
+                width: 52px;
+                height: 52px;
+                flex-basis: 52px;
+            }
+
+            .player-token {
+                width: 18px;
+                height: 18px;
+                font-size: 6.5px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .brand-name {
+                font-size: 0.78rem;
+            }
+
+            .header-button {
+                width: 38px;
+                padding: 0;
+            }
+
+            .header-button-label {
+                display: none;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center selection:bg-rose-500 selection:text-white">
+
+    <!-- HEADER -->
+    <header class="app-header mx-auto flex items-center justify-between z-40">
+        <div class="brand flex items-center gap-2 min-w-0">
+            <span class="brand-mark" aria-hidden="true">✦</span>
+            <span id="txt-brand-name" class="brand-name text-sm text-slate-900 truncate">Creative Dictionary</span>
+        </div>
+        <nav class="header-actions flex items-center gap-2" aria-label="Application actions">
+            <a href="https://github.com/leonardoaraujosilva/creative-dictionary/blob/main/README.md" target="_blank" rel="noopener noreferrer" class="header-button">
+                <span aria-hidden="true">📖</span>
+                <span id="txt-rules" class="header-button-label">Rules</span>
+            </a>
+            <button type="button" onclick="resetToLanguageSelect()" class="header-button">
+                <span aria-hidden="true">🌐</span>
+                <span id="txt-lang-btn" class="header-button-label">Language</span>
+            </button>
+            <button type="button" id="restart-game-button" onclick="restartGame()" class="header-button header-button-accent hidden">
+                <span aria-hidden="true">↻</span>
+                <span id="txt-restart" class="header-button-label">Restart</span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- CONTAINER PRINCIPAL -->
+    <main class="app-main mx-auto my-auto flex flex-col items-center justify-center z-30">
+
+        <!-- TELA 1: SELEÇÃO DE IDIOMA -->
+        <div id="screen-language" class="screen active flex-col items-center w-full">
+            <div class="glass-card w-full p-8 text-center space-y-6">
+                <div class="language-intro space-y-2">
+                    <div class="flex items-center justify-center gap-2 mb-3" aria-hidden="true">
+                        <span class="w-7 h-px bg-slate-200"></span>
+                        <span class="brand-mark text-sm">✦</span>
+                        <span class="w-7 h-px bg-slate-200"></span>
+                    </div>
+                    <h1 id="txt-language-title" class="text-3xl text-slate-900">Creative Dictionary</h1>
+                    <p id="txt-language-subtitle" class="text-slate-400 text-xs">Select your language to begin</p>
+                </div>
+
+                <div class="space-y-2.5">
+                    <button type="button" onclick="setLanguage('pt')" class="language-card w-full flex items-center justify-between px-4 py-3 text-left group" style="--language-accent: #16a34a; --language-soft: #f0fdf4">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <span class="language-flag language-flag-pt" aria-hidden="true">
+                                <svg class="flag-svg" viewBox="0 0 24 16" role="img" aria-label="Brazil flag">
+                                    <rect width="24" height="16" fill="#009c3b"/>
+                                    <path d="M12 2 L21 8 L12 14 L3 8 Z" fill="#ffdf00"/>
+                                    <circle cx="12" cy="8" r="3.55" fill="#002776"/>
+                                    <path d="M8.6 7.1 C10.4 6.2 12.8 6.1 15.5 7.4" fill="none" stroke="#ffffff" stroke-width="0.65"/>
+                                </svg>
+                            </span>
+                            <div class="min-w-0">
+                                <p class="language-name text-slate-800 text-sm group-hover:text-slate-950">Português</p>
+                                <p class="language-region">Brasil</p>
+                            </div>
+                        </div>
+                        <span class="language-arrow font-semibold text-sm" aria-hidden="true">→</span>
+                    </button>
+
+                    <button type="button" onclick="setLanguage('en')" class="language-card w-full flex items-center justify-between px-4 py-3 text-left group" style="--language-accent: #2563eb; --language-soft: #eff6ff">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <span class="language-flag language-flag-en" aria-hidden="true">
+                                <svg class="flag-svg" viewBox="0 0 24 16" role="img" aria-label="United States flag">
+                                    <rect width="24" height="16" fill="#ffffff"/>
+                                    <path d="M0 0h24v2H0zM0 4h24v2H0zM0 8h24v2H0zM0 12h24v2H0z" fill="#b22234"/>
+                                    <rect width="10.5" height="8.6" fill="#3c3b6e"/>
+                                    <g fill="#ffffff">
+                                        <circle cx="1.8" cy="1.4" r="0.35"/><circle cx="3.5" cy="1.4" r="0.35"/><circle cx="5.2" cy="1.4" r="0.35"/><circle cx="6.9" cy="1.4" r="0.35"/><circle cx="8.6" cy="1.4" r="0.35"/>
+                                        <circle cx="2.65" cy="2.6" r="0.35"/><circle cx="4.35" cy="2.6" r="0.35"/><circle cx="6.05" cy="2.6" r="0.35"/><circle cx="7.75" cy="2.6" r="0.35"/>
+                                        <circle cx="1.8" cy="3.8" r="0.35"/><circle cx="3.5" cy="3.8" r="0.35"/><circle cx="5.2" cy="3.8" r="0.35"/><circle cx="6.9" cy="3.8" r="0.35"/><circle cx="8.6" cy="3.8" r="0.35"/>
+                                        <circle cx="2.65" cy="5" r="0.35"/><circle cx="4.35" cy="5" r="0.35"/><circle cx="6.05" cy="5" r="0.35"/><circle cx="7.75" cy="5" r="0.35"/>
+                                        <circle cx="1.8" cy="6.2" r="0.35"/><circle cx="3.5" cy="6.2" r="0.35"/><circle cx="5.2" cy="6.2" r="0.35"/><circle cx="6.9" cy="6.2" r="0.35"/><circle cx="8.6" cy="6.2" r="0.35"/>
+                                    </g>
+                                </svg>
+                            </span>
+                            <div class="min-w-0">
+                                <p class="language-name text-slate-800 text-sm group-hover:text-slate-950">English</p>
+                                <p class="language-region">United States</p>
+                            </div>
+                        </div>
+                        <span class="language-arrow font-semibold text-sm" aria-hidden="true">→</span>
+                    </button>
+
+                    <button type="button" onclick="setLanguage('es')" class="language-card w-full flex items-center justify-between px-4 py-3 text-left group" style="--language-accent: #ef4444; --language-soft: #fff7ed">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <span class="language-flag language-flag-es" aria-hidden="true">
+                                <svg class="flag-svg" viewBox="0 0 24 16" role="img" aria-label="Spain flag">
+                                    <rect width="24" height="16" fill="#aa151b"/>
+                                    <rect y="4" width="24" height="8" fill="#f1bf00"/>
+                                </svg>
+                            </span>
+                            <div class="min-w-0">
+                                <p class="language-name text-slate-800 text-sm group-hover:text-slate-950">Español</p>
+                                <p class="language-region">España / Latinoamérica</p>
+                            </div>
+                        </div>
+                        <span class="language-arrow font-semibold text-sm" aria-hidden="true">→</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TELA 2: CADASTRO DE JOGADORES -->
+        <div id="screen-registration" class="screen flex-col items-center w-full">
+            <div class="glass-card w-full p-8">
+                <h1 id="txt-reg-title" class="text-3xl font-semibold text-slate-900 mb-1 tracking-tight text-center">Creative Dictionary</h1>
+                <p id="txt-reg-subtitle" class="text-rose-600 mb-6 font-semibold text-xs text-center">Minimum 3 players</p>
+                
+                <div class="flex gap-2 mb-4">
+                    <input autocomplete="name" enterkeyhint="done" type="text" id="player-name-input" placeholder="Player name..." class="flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-slate-900 font-medium text-sm" oninput="handlePlayerNameInput()" onkeydown="handleEnter(event)">
+                    <button type="button" onclick="addPlayer()" id="txt-add-btn" class="bg-slate-900 text-white rounded-2xl px-5 font-semibold hover:bg-slate-800 transition text-sm">Add</button>
+                </div>
+
+                <div class="mb-5">
+                    <div id="player-color-picker" class="player-color-picker" role="radiogroup" aria-label="Player color"></div>
+                    <p id="player-color-hint" class="player-color-hint">Choose a color or keep the suggested one</p>
+                </div>
+
+                <!-- Caixa de meta de pontos condicional -->
+                <div id="goal-info-box" class="bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 mb-4 text-center hidden">
+                    <p id="txt-goal-info" class="text-xs font-semibold text-slate-700"></p>
+                </div>
+                
+                <div id="players-list" class="flex flex-wrap gap-2.5 justify-center mb-6 min-h-[40px] max-h-40 overflow-y-auto hide-scrollbar"></div>
+                
+                <button type="button" onclick="startGame()" id="btn-start" class="btn-primary w-full py-4 rounded-2xl font-semibold text-sm hidden shadow-md">Iniciar Jogo 🚀</button>
+                <p id="reg-error" class="text-rose-500 text-xs mt-3 text-center font-semibold hidden"></p>
+            </div>
+        </div>
+
+        <!-- TELA 3: PALAVRA DA RODADA -->
+        <div id="screen-word" class="screen flex-col items-center w-full">
+            <div class="glass-card w-full p-8 text-center relative overflow-hidden space-y-4">
+                <span id="txt-round-label" class="bg-rose-50 text-rose-600 px-3.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">Round 1</span>
+                <div>
+                    <p id="txt-word-subtitle" class="text-slate-400 uppercase tracking-widest font-semibold text-[11px] mb-2">A Palavra da Rodada é</p>
+                    <h2 id="current-word-display" class="text-4xl font-semibold text-slate-900 tracking-tight"></h2>
+                </div>
+                <button type="button" onclick="startWritingMenu()" id="txt-start-guesses" class="btn-primary w-full py-4 rounded-2xl font-semibold text-sm mt-2 shadow-md">Começar Palpites ✍️</button>
+            </div>
+        </div>
+
+        <!-- TELA 4: MENU DE ESCRITA NÃO SEQUENCIAL -->
+        <div id="screen-writing-menu" class="screen flex-col items-center w-full">
+            <div class="glass-card w-full p-8 space-y-5 text-center">
+                <div class="space-y-1">
+                    <span id="txt-writing-round" class="text-xs font-semibold uppercase tracking-wider text-rose-600 bg-rose-50 px-3 py-1 rounded-full">Rodada</span>
+                    <h2 id="writing-menu-word" class="text-3xl font-semibold text-slate-900 tracking-tight pt-1"></h2>
+                    <p id="txt-writing-hint" class="text-xs text-slate-400 font-medium">Quem pensar primeiro, clica e digita:</p>
+                </div>
+
+                <div class="space-y-2.5 text-left">
+                    <h4 id="txt-pending-title" class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-1">Faltam escrever:</h4>
+                    <div id="pending-writers-list" class="grid grid-cols-1 gap-2.5 max-h-56 overflow-y-auto hide-scrollbar"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TELA 5: PASSE O CELULAR (APENAS PARA VOTAÇÃO) -->
+        <div id="screen-pass" class="screen flex-col items-center w-full">
+            <div class="glass-card w-full p-8 text-center space-y-6">
+                <div id="pass-avatar" class="w-20 h-20 rounded-full mx-auto flex items-center justify-center text-2xl font-semibold text-white shadow-md"></div>
+                <div class="space-y-1">
+                    <p id="txt-pass-to" class="text-slate-400 font-semibold text-xs uppercase tracking-wider">Passe o celular para</p>
+                    <h3 id="pass-name" class="text-3xl font-semibold text-slate-900 tracking-tight"></h3>
+                </div>
+                <p id="txt-pass-hint" class="text-slate-400 text-xs font-medium">Não deixe ninguém ver sua tela!</p>
+                <button type="button" onclick="acknowledgePass()" id="txt-im-ready" class="btn-primary w-full py-4 rounded-2xl font-semibold text-sm shadow-md">Estou com o celular 📱</button>
+            </div>
+        </div>
+
+        <!-- TELA 6: ENTRADA DE SIGNIFICADOS -->
+        <div id="screen-input" class="screen flex-col items-center w-full">
+            <div class="glass-card w-full p-8 space-y-5">
+                <div class="flex items-center space-x-3">
+                    <div id="input-avatar" class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold text-white shadow-xs"></div>
+                    <span id="input-player-name" class="font-semibold text-slate-800 text-sm"></span>
+                </div>
+                <div>
+                    <h3 id="txt-what-means" class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">O que significa a palavra:</h3>
+                    <h2 id="input-word" class="text-3xl font-semibold text-slate-900 tracking-tight"></h2>
+                </div>
+                <textarea id="meaning-input" rows="4" enterkeyhint="done" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 focus:outline-none focus:ring-2 focus:ring-slate-900 font-medium text-sm resize-none" placeholder="Invente uma definição convincente..."></textarea>
+                <p id="input-error" class="text-rose-500 text-xs font-semibold hidden"></p>
+                <button type="button" onclick="submitMeaning()" id="txt-send-meaning" class="btn-primary w-full py-4 rounded-2xl font-semibold text-sm shadow-md">Confirmar e Voltar ➡️</button>
+            </div>
+        </div>
+
+        <!-- TELA 7: VOTAÇÃO -->
+        <div id="screen-vote" class="screen flex-col items-center w-full">
+            <div class="glass-card w-full p-8 space-y-5">
+                <div class="flex items-center space-x-3">
+                    <div id="vote-avatar" class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold text-white shadow-xs"></div>
+                    <span id="vote-player-name" class="font-semibold text-slate-800 text-sm"></span>
+                </div>
+                <div>
+                    <h3 id="txt-vote-prompt" class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Qual é o significado correto/criativo de:</h3>
+                    <h2 id="vote-word" class="text-3xl font-semibold text-slate-900 tracking-tight"></h2>
+                </div>
+                <div id="vote-options" class="flex flex-col gap-2.5 max-h-60 overflow-y-auto hide-scrollbar"></div>
+                <p id="vote-error" class="text-rose-500 text-xs font-semibold hidden"></p>
+                <button type="button" onclick="submitVote()" id="txt-confirm-vote" class="btn-primary w-full py-4 rounded-2xl font-semibold text-sm shadow-md">Confirmar Voto ✨</button>
+            </div>
+        </div>
+
+        <!-- TELA 8: FIM DE RODADA -->
+        <div id="screen-scoreboard" class="screen flex-col items-center w-full max-w-lg">
+            <div class="glass-card w-full p-8 text-center space-y-5">
+                <h2 id="txt-board-header" class="text-2xl font-semibold text-slate-900 tracking-tight">🏆 Fim da Rodada!</h2>
+                <p id="txt-board-sub" class="text-xs text-slate-400 font-medium">Veja as posições atualizadas no tabuleiro abaixo</p>
+                <button type="button" onclick="handleRoundAction()" id="txt-next-round" class="btn-primary w-full py-4 rounded-2xl font-semibold text-sm shadow-md">Próxima Rodada ➡️</button>
+            </div>
+        </div>
+
+        <!-- TELA 9: TELA DE VITÓRIA DEFINITIVA -->
+        <div id="screen-victory" class="screen flex-col items-center w-full max-w-lg">
+            <div class="glass-card w-full p-8 text-center space-y-6">
+                <div class="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto text-3xl shadow-sm">👑</div>
+                <div class="space-y-1">
+                    <h2 id="victory-title" class="text-3xl font-semibold text-slate-900 tracking-tight">Vencedor!</h2>
+                    <p id="victory-subtitle" class="text-xs text-slate-500 font-semibold"></p>
+                </div>
+                <div id="victory-podium" class="flex flex-col gap-2 text-left max-h-44 overflow-y-auto hide-scrollbar bg-slate-50 p-4 rounded-2xl border border-slate-200"></div>
+                <button type="button" onclick="resetToRegistration()" class="btn-primary w-full py-4 rounded-2xl font-semibold text-sm shadow-md" id="txt-play-again">Jogar Novamente 🔄</button>
+            </div>
+        </div>
+
+    </main>
+
+    <noscript><p class="fixed inset-x-4 bottom-4 mx-auto max-w-md rounded-2xl bg-white p-4 text-center text-sm font-semibold text-slate-600 shadow-lg">Este jogo precisa de JavaScript ativado para funcionar.</p></noscript>
+
+    <!-- TABULEIRO FIXO COM SCROLL FUNCIONAL (DRAG & TOUCH) -->
+    <footer id="persistent-footer-board" class="board-footer backdrop-blur-md border border-slate-200/80 fixed z-50 hidden">
+        <div class="space-y-1.5">
+            <div class="flex justify-between items-center px-1">
+                <span id="txt-board-title" class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">🏆 Tabuleiro</span>
+                <span id="footer-round-indicator" class="text-xs font-semibold text-rose-600">Rodada 1</span>
+            </div>
+            <div id="board-container" class="board-track-footer hide-scrollbar"></div>
+        </div>
+    </footer>
+
+    <script>
+        const translations = {
+            pt: {
+                htmlLang: "pt-BR",
+                pageTitle: "Dicionário Criativo",
+                languageTitle: "Dicionário Criativo",
+                languageSubtitle: "Selecione seu idioma para começar",
+                rules: "Regras",
+                lang: "Idioma",
+                restart: "Recomeçar",
+                regTitle: "Dicionário Criativo",
+                regSubtitle: "Mínimo de 3 jogadores",
+                playerPlaceholder: "Nome do jogador...",
+                add: "Adicionar",
+                colorHint: "Escolha uma cor ou mantenha a sugerida",
+                start: "Iniciar jogo 🚀",
+                roundLabel: "Rodada",
+                wordSubtitle: "A palavra da rodada é",
+                startGuesses: "Começar palpites ✍️",
+                passTo: "Passe o celular para",
+                passHint: "Não deixe ninguém ver sua tela.",
+                imReady: "Estou com o celular 📱",
+                whatMeans: "O que significa a palavra:",
+                meaningPlaceholder: "Invente uma definição convincente...",
+                sendMeaning: "Confirmar e voltar ➡️",
+                votePrompt: "Qual é o significado correto ou mais criativo de:",
+                confirmVote: "Confirmar voto ✨",
+                boardHeader: "🏆 Fim da rodada!",
+                boardSub: "Veja as posições atualizadas no tabuleiro abaixo",
+                nextRound: "Próxima rodada ➡️",
+                pendingTitle: "Faltam escrever:",
+                clickToType: "Quem pensar primeiro, clica e digita:",
+                boardTitle: "🏆 Tabuleiro",
+                goalText: (count, score) => `${count} jogadores · alcance ${score} pontos para vencer`,
+                playAgain: "Jogar novamente 🔄",
+                errorNameShort: "O nome deve ter pelo menos 2 letras.",
+                errorMaxPlayers: "Máximo de 12 jogadores atingido.",
+                errorDuplicateName: "Esse nome já está na partida.",
+                errorMeaning: "Escreva um significado válido.",
+                errorVote: "Selecione uma das opções para votar.",
+                confirmLanguageReset: "Deseja reiniciar a partida e voltar à seleção de idioma?",
+                confirmGameReset: "Deseja recomeçar a partida? A rodada atual será encerrada.",
+                winnerTitle: (name) => `👑 ${name} venceu!`,
+                winnerSubtitle: (score) => `Atingiu a meta de ${score} pontos.`,
+                tieTitle: "👑 Empate!",
+                tieSubtitle: (score) => `Mais de um jogador atingiu ${score} pontos nesta rodada.`,
+                points: "pts"
+            },
+            en: {
+                htmlLang: "en-US",
+                pageTitle: "Creative Dictionary",
+                languageTitle: "Creative Dictionary",
+                languageSubtitle: "Select your language to begin",
+                rules: "Rules",
+                lang: "Language",
+                restart: "Restart",
+                regTitle: "Creative Dictionary",
+                regSubtitle: "Minimum 3 players",
+                playerPlaceholder: "Player name...",
+                add: "Add",
+                colorHint: "Choose a color or keep the suggested one",
+                start: "Start game 🚀",
+                roundLabel: "Round",
+                wordSubtitle: "The word of the round is",
+                startGuesses: "Start guesses ✍️",
+                passTo: "Pass the phone to",
+                passHint: "Don't let anyone see your screen.",
+                imReady: "I have the phone 📱",
+                whatMeans: "What does the word mean:",
+                meaningPlaceholder: "Invent a convincing definition...",
+                sendMeaning: "Confirm & return ➡️",
+                votePrompt: "Which is the correct or most creative definition for:",
+                confirmVote: "Confirm vote ✨",
+                boardHeader: "🏆 End of round!",
+                boardSub: "Check the updated positions on the board below",
+                nextRound: "Next round ➡️",
+                pendingTitle: "Waiting for:",
+                clickToType: "Whoever is ready, tap and write:",
+                boardTitle: "🏆 Scoreboard",
+                goalText: (count, score) => `${count} players · reach ${score} points to win`,
+                playAgain: "Play again 🔄",
+                errorNameShort: "The name must contain at least 2 letters.",
+                errorMaxPlayers: "Maximum of 12 players reached.",
+                errorDuplicateName: "That name is already in the game.",
+                errorMeaning: "Write a valid definition.",
+                errorVote: "Select one of the options to vote.",
+                confirmLanguageReset: "Restart the game and return to language selection?",
+                confirmGameReset: "Restart the game? The current round will be ended.",
+                winnerTitle: (name) => `👑 ${name} won!`,
+                winnerSubtitle: (score) => `Reached the ${score}-point goal.`,
+                tieTitle: "👑 Tie!",
+                tieSubtitle: (score) => `More than one player reached ${score} points this round.`,
+                points: "pts"
+            },
+            es: {
+                htmlLang: "es-ES",
+                pageTitle: "Diccionario Creativo",
+                languageTitle: "Diccionario Creativo",
+                languageSubtitle: "Selecciona tu idioma para comenzar",
+                rules: "Reglas",
+                lang: "Idioma",
+                restart: "Recomenzar",
+                regTitle: "Diccionario Creativo",
+                regSubtitle: "Mínimo de 3 jugadores",
+                playerPlaceholder: "Nombre del jugador...",
+                add: "Añadir",
+                colorHint: "Elige un color o mantén el sugerido",
+                start: "Empezar juego 🚀",
+                roundLabel: "Ronda",
+                wordSubtitle: "La palabra de la ronda es",
+                startGuesses: "Empezar respuestas ✍️",
+                passTo: "Pasa el teléfono a",
+                passHint: "No dejes que nadie vea tu pantalla.",
+                imReady: "Tengo el teléfono 📱",
+                whatMeans: "¿Qué significa la palabra:",
+                meaningPlaceholder: "Inventa una definición convincente...",
+                sendMeaning: "Confirmar y volver ➡️",
+                votePrompt: "¿Cuál es la definición correcta o más creativa de:",
+                confirmVote: "Confirmar voto ✨",
+                boardHeader: "🏆 ¡Fin de la ronda!",
+                boardSub: "Mira las posiciones actualizadas en el tablero",
+                nextRound: "Siguiente ronda ➡️",
+                pendingTitle: "Faltan por escribir:",
+                clickToType: "Quien esté listo, pulsa y escribe:",
+                boardTitle: "🏆 Tablero",
+                goalText: (count, score) => `${count} jugadores · alcanza ${score} puntos para ganar`,
+                playAgain: "Jugar de nuevo 🔄",
+                errorNameShort: "El nombre debe tener al menos 2 letras.",
+                errorMaxPlayers: "Se alcanzó el máximo de 12 jugadores.",
+                errorDuplicateName: "Ese nombre ya está en la partida.",
+                errorMeaning: "Escribe un significado válido.",
+                errorVote: "Selecciona una opción para votar.",
+                confirmLanguageReset: "¿Reiniciar la partida y volver a la selección de idioma?",
+                confirmGameReset: "¿Reiniciar la partida? La ronda actual terminará.",
+                winnerTitle: (name) => `👑 ¡${name} ganó!`,
+                winnerSubtitle: (score) => `Alcanzó la meta de ${score} puntos.`,
+                tieTitle: "👑 ¡Empate!",
+                tieSubtitle: (score) => `Más de un jugador alcanzó ${score} puntos en esta ronda.`,
+                points: "pts"
+            }
+        };
+
+        const wordLists = {
+            pt: [
+                "Ablaqueação", "Abluir", "Abnóbio", "Abreugrafia", "Absonante", "Absonância", "Abécega", "Acafelar",
+                "Acarapinhar", "Acarbúnculo", "Acasmurrado", "Acasquilhar", "Acastos", "Accipitrino", "Acevichar", "Aciculado",
+                "Acipensérgio", "Acroama", "Acroase", "Acroteríaco", "Acéquia", "Adamastórico", "Adarvar", "Adelafo",
+                "Adstrato", "Agastadura", "Ahuçar", "Ailurófilo", "Ajoujar", "Alambazado", "Alcaravão", "Aldabrice",
+                "Aleivosia", "Alfageme", "Alfaneque", "Alféloa", "Almotacaria", "Almuinha", "Alparavaz", "Alqueivar",
+                "Alqueiveiro", "Alquitara", "Alrotar", "Amictório", "Anacorético", "Andaina", "Anfractuoso", "Angúvia",
+                "Anomuro", "Antropopatia", "Anádromo", "Apantufar", "Apanáfio", "Aperrar", "Apofonia", "Aposiopese",
+                "Arnícia", "Arrabil", "Arrabilado", "Arrabis", "Arrimadiço", "Aríolo", "Asarotado", "Asinação",
+                "Aspérula", "Assunar", "Asélio", "Atafona", "Atalvia", "Atrigado", "Aucupar", "Aurir",
+                "Avernar", "Azorragar", "Bambúrrio", "Barinel", "Beleguim", "Berzabum", "Bispote", "Blaterar",
+                "Bochornal", "Bordalengo", "Botaréu", "Bragueiro", "Bulcão", "Cacaréu", "Canhenho", "Capitoso",
+                "Caranchona", "Carunchoso", "Catrafuso", "Caturrice", "Cavilação", "Choldra", "Churrião", "Coarctar",
+                "Coibente", "Comenos", "Confutação", "Consectário", "Coruscante", "Cotio", "Crisídea", "Cromeleque",
+                "Cuntatório", "Deliquescente", "Demulcente", "Desusança", "Ecceidade", "Ecdótico", "Elaterídeo", "Enxúndia",
+                "Epagoge", "Epanortose", "Epânodo", "Equóreo", "Erístico", "Escaganifobético", "Escanifrado", "Escrínio",
+                "Estorcegão", "Extispício", "Famulento", "Farândola", "Fementido", "Filaucioso", "Filáucia", "Fisiognomonia",
+                "Flabeliforme", "Flictena", "Flébil", "Fulguração", "Fâmulo", "Garridice", "Grangear", "Guaiar",
+                "Habena", "Hapax", "Hemeralopia", "Homizio", "Hárpia", "Impropério", "Incontinenti", "Indigitado",
+                "Indúcias", "Insalutífero", "Insciente", "Instar", "Invectiva", "Irrefragável", "Isagoge", "Isagógico",
+                "Jaez", "Lugente", "Lídimo", "Malacafento", "Malsinar", "Manir", "Marafona", "Matula",
+                "Mesura", "Metagoge", "Metempsicótico", "Misoneísmo", "Muquifo", "Nababesco", "Neartrose", "Nupérrimo",
+                "Obnubilar", "Obnóxio", "Obtemperar", "Obverso", "Orismologia", "Paragoge", "Peroração", "Perquirição",
+                "Pesporrência", "Plangente", "Polvorosa", "Prebenda", "Preito", "Prolegômenos", "Propelir", "Prosápia",
+                "Proêmio", "Pródromo", "Quidam", "Rabdomancia", "Rabulice", "Rabulista", "Repetenar-se", "Repimpar",
+                "Resmonear", "Sanhudo", "Sinecura", "Sizígia", "Supedâneo", "Sóbole", "Súcubo", "Trânsfuga",
+                "Ustulação", "Xilomancia", "Zagal", "Zaragata", "Zaragateiro", "Zoopsia", "Alfenim", "Alfombra",
+                "Almadraque", "Alvazil", "Anagogia", "Anagógico", "Antanaclase", "Antanagoge", "Antimetábole", "Antístrofe",
+                "Apagoge", "Apotegma", "Apotropaico", "Apócopo", "Apódose", "Armígero", "Azorrague", "Calembur",
+                "Calundu", "Camartelo", "Chibante", "Chorrilho", "Dromomania", "Embair", "Encômio", "Epitalâmio",
+                "Epizootia", "Escólio", "Estorcegar", "Estroina", "Ferrete", "Gazua", "Ilharga", "Indômito",
+                "Logorreia", "Metempsicose", "Nefelibata", "Perdulário", "Renitente", "Repasto", "Rubicundo", "Sandeu",
+                "Solerte", "Tergiversar"
+            ],
+            en: [
+                "Abacinate", "Abditive", "Abligate", "Abluvion", "Abnormous", "Abrocome", "Addecimate", "Adimpleate",
+                "Adnascentia", "Aeipathy", "Affictitious", "Affuage", "Agelast", "Agerasia", "Agonarch", "Agonyclite",
+                "Airgonaut", "Albedineity", "Aliped", "Allochiria", "Almuten", "Alogotrophy", "Altiloquent", "Ambagious",
+                "Amphisbaena", "Anabibazon", "Anopisthographic", "Apopemptic", "Athermancy", "Avadavat", "Barmecide", "Bedight",
+                "Bedizen", "Bedrabble", "Bedrench", "Beldam", "Bemuddle", "Berley", "Beshrew", "Bibacious",
+                "Bield", "Blatherskite", "Bobbery", "Brabble", "Bradypeptic", "Brank", "Brisant", "Brobdingnagian",
+                "Brontide", "Brumation", "Bumfuzzle", "Byssine", "Cachinnate", "Cachinnation", "Cantillate", "Carfax",
+                "Catillate", "Cerement", "Chrematistic", "Cicisbeo", "Claque", "Claustrophilia", "Clepsydra", "Clinquant",
+                "Clowder", "Coacervate", "Concameration", "Concinnity", "Corybantic", "Crapulent", "Crwth", "Cyclothymia",
+                "Didapper", "Dipsas", "Discalced", "Discerpible", "Dishabille", "Dyslogistic", "Ecbolic", "Elflock",
+                "Embrangle", "Emmetropia", "Ensorcell", "Epexegesis", "Epizeuxis", "Eructation", "Excogitate", "Eximious",
+                "Exsufflicate", "Extispicy", "Fabrefaction", "Fallaciloquence", "Famelicose", "Fardel", "Feliform", "Fescennine",
+                "Festinate", "Filibeg", "Filicology", "Floccose", "Flosculation", "Foppotee", "Frenigerent", "Fubsy",
+                "Fumacious", "Furze", "Fustilugs", "Gadzookery", "Gamahuche", "Gardeviance", "Gaudiloquent", "Gibbose",
+                "Gimcrack", "Ginglymus", "Gleet", "Glom", "Gnathonize", "Gorgonize", "Grumph", "Gubbins",
+                "Gumfiate", "Gutturniform", "Hagridden", "Hectocotylus", "Heliolatry", "Hemidemisemiquaver", "Hesternal", "Hobbledehoy",
+                "Huggermugger", "Huggery", "Ichor", "Imbrication", "Impignorate", "Incogitant", "Inquiline", "Interlard",
+                "Inumbrate", "Ipsedixitism", "Iracund", "Iridaceous", "Jumentous", "Knurl", "Knurled", "Lamprophyre",
+                "Larrikin", "Latibulate", "Lickspigot", "Lixiviate", "Malapert", "Mallemaroking", "Mammetry", "Manuduction",
+                "Mephitic", "Metempirical", "Miasmatic", "Misprision", "Mollitious", "Mumpsimus", "Myrmidon", "Nepenthe",
+                "Nescience", "Nidicolous", "Nidorous", "Nympholepsy", "Obdormition", "Obelism", "Objurgate", "Obmutescence",
+                "Odynia", "Orotund", "Oxter", "Palinode", "Parergon", "Parget", "Parousia", "Perendinate",
+                "Perissology", "Peristome", "Philodox", "Philoprogenitive", "Phthisic", "Pilgarlic", "Precatory", "Procelous",
+                "Quomodocunquize", "Raddle", "Recalescent", "Redargue", "Remanet", "Resipiscence", "Retromingent", "Ribaldrous",
+                "Rubiginous", "Rutilant", "Scissile", "Somniloquy", "Spitchcock", "Stertorous", "Subfusc", "Susurration",
+                "Tmesis", "Trabaculous", "Triskaidekaphilia", "Ultroneous", "Usquebaugh", "Vitta", "Wampus", "Xylophagous",
+                "Zoanthropy", "Zoolatry", "Abdominous", "Algorism", "Anabasis", "Anastomosis", "Anile", "Antimacassar",
+                "Antipodean", "Apricity", "Argute", "Asthenic", "Augean", "Buncombe", "Circumforaneous", "Compendious",
+                "Cunctation", "Defenestrate", "Deliquescent", "Deuteragonist", "Effulgence", "Farinaceous", "Glabrous", "Neoteric",
+                "Otiose", "Overmorrow", "Preprandial", "Prolixity", "Ratiocination", "Refulgent", "Renascent", "Scabrous",
+                "Sempiternal", "Vespertine", "Boustrophedon", "Cacography", "Foudroyant", "Logodaedaly", "Omphaloskepsis", "Pogonotrophy",
+                "Psithurism", "Borborygmus"
+            ],
+            es: [
+                "Abuhado", "Acecinar", "Adunación", "Agibílibus", "Agigolado", "Agiotismo", "Alboroque", "Almotacenadgo",
+                "Alípede", "Aovadolanceolada", "Atarván", "Añagaza", "Badulaque", "Bahorrina", "Baldragas", "Baltra",
+                "Beldar", "Berzotas", "Bisojo", "Burdégano", "Bustrófedon", "Cagaprisas", "Cañivano", "Celaje",
+                "Cerviguillo", "Chirimbolo", "Chiticalla", "Cimbalillo", "Cochambre", "Coqueluche", "Corambre", "Cuchipanda",
+                "Cucurbitáceo", "Curiana", "Cuélebre", "Cárabe", "Dendrolatría", "Deuteróstomo", "Dipsómano", "Duunviro",
+                "Dípsade", "Ebúrneo", "Ecbólico", "Ecdótico", "Ectipografía", "Enantiomorfia", "Epanadiplosis", "Escible",
+                "Estilicidio", "Exergo", "Exuvia", "Faltriquera", "Fescenino", "Filoxera", "Flósculo", "Fonsadera",
+                "Fruche", "Fufurufo", "Ful", "Fumadga", "Furfuráceo", "Galafate", "Gandumbas", "Garambaina",
+                "Garlito", "Garrotillo", "Gatuperio", "Gazuza", "Guadamecí", "Gulusmear", "Gurriato", "Gurrumino",
+                "Harbar", "Hecatónquiro", "Hidromancia", "Hidátide", "Hontanar", "Hornaguear", "Icnografía", "Icnología",
+                "Impignoración", "Incogitado", "Infurción", "Jabardo", "Jaldeta", "Jarretar", "Jauto", "Jerapellina",
+                "Jitanjáfora", "Jumentoso", "Lambiscar", "Latibular", "Lepidocrocita", "Leptorrino", "Limerencia", "Lobanillo",
+                "Ludibrio", "Lábaro", "Mamotreto", "Mamporrería", "Mangurrián", "Martiniega", "Marzazga", "Mastuerzo",
+                "Matacán", "Mefítico", "Mesnada", "Metempsicosis", "Morcajo", "Moyo", "Nefología", "Neomenia",
+                "Nictálope", "Nidoroso", "Nugatorio", "Nuncupativo", "Obelismo", "Obsecración", "Ochavo", "Oenoteráceo",
+                "Oricteropo", "Oropimente", "Ostrífero", "Oxifonía", "Paleofitopatología", "Palinodia", "Palmatoria", "Parihuela",
+                "Parusía", "Patochada", "Pedigüeñería", "Pegujalero", "Pelgar", "Perendengue", "Perlesía", "Picio",
+                "Pteridófito", "Puzolana", "Quenopodiáceo", "Quincalla", "Quincunce", "Quiragra", "Quisicosa", "Quodlibeto",
+                "Rabadán", "Rampojo", "Rancura", "Recipiendario", "Redargüir", "Regnícola", "Regüeldo", "Rejalgar",
+                "Resipiscencia", "Retromingente", "Rodrigón", "Rondel", "Rostrado", "Réprobo", "Sabrimiento", "Saledizo",
+                "Sapenco", "Serventesio", "Sialismo", "Sialorrea", "Sicalipsis", "Sincicio", "Solípedo", "Somniloquia",
+                "Soponcio", "Sornabirón", "Sostribar", "Sotileza", "Suberina", "Sucusumucu", "Suestada", "Tabardillo",
+                "Tartana", "Tazmía", "Timpanismo", "Tindalizar", "Tisú", "Tonsura", "Tornatrás", "Trapisonda",
+                "Trematodo", "Triclinio", "Triforio", "Uliginoso", "Ululato", "Usagre", "Vagaroso", "Vagido",
+                "Vejigatorio", "Velívolo", "Vespertilio", "Vesánico", "Vitualla", "Xantopsia", "Xenólito", "Xeromorfismo",
+                "Yacija", "Zahúrda", "Zangolotear", "Zaragüelles", "Zompo", "Zurrapa", "Zurriburri", "Álveo",
+                "Ñengo", "Ñisñil", "Ñomblón", "Ñuzco", "Adstricción", "Bieldo", "Boquirrubio", "Carraña",
+                "Cenceño", "Conmilitón", "Coturno", "Drupa", "Escotoma", "Higrométrico", "Hifema", "Irenismo",
+                "Isagogía", "Jipiar", "Jerigonza", "Kermés", "Nefelométrico", "Luctuoso", "Koiné", "Kinesia",
+                "Lauda", "Lientería", "Légamo", "Mucílago", "Almófar", "Apócema", "Chafalmejas", "Peneque",
+                "Pitanza", "Refitolero", "Tartajoso", "Ñáñara", "Garniel", "Birlocha", "Bambarria", "Chuchumeco",
+                "Jándalo", "Gaznápiro"
+            ]
+        };
+
+        let currentLang = 'en';
+        let players = [];
+        let currentWord = "";
+        let gameRound = 1;
+        let remainingWriters = [];
+        let activeWriterId = null;
+        let roundAnswers = [];
+        let currentPlayerIndex = 0;
+        let passTargetPhase = "";
+        let selectedVoteId = null;
+        let gameEnded = false;
+
+        function getMaxScore() {
+            const count = Math.max(players.length, 3);
+            return Math.min(count * 4, 30);
+        }
+
+        const PLAYER_COLORS = [
+            '#0f172a', '#e11d48', '#0284c7', '#16a34a',
+            '#9333ea', '#d97706', '#0d9488', '#4f46e5',
+            '#be185d', '#475569', '#ca8a04', '#047857'
+        ];
+        let selectedPlayerColor = null;
+
+        function getInitials(name) {
+            return name.substring(0, 2).toUpperCase();
+        }
+
+        function getRandomValue(maxExclusive) {
+            return Math.floor(Math.random() * maxExclusive);
+        }
+
+        function choosePlayerColor(name) {
+            const initials = getInitials(name);
+            const usedColors = players
+                .filter(player => player.color)
+                .map(player => player.color);
+            const colorsUsedBySameInitials = new Set(
+                players
+                    .filter(player => getInitials(player.name) === initials)
+                    .map(player => player.color)
+            );
+
+            const candidateColors = PLAYER_COLORS.filter(
+                color => !colorsUsedBySameInitials.has(color)
+            );
+
+            if (candidateColors.length === 0) {
+                return PLAYER_COLORS[getRandomValue(PLAYER_COLORS.length)];
+            }
+
+            const usageCount = new Map(
+                candidateColors.map(color => [
+                    color,
+                    usedColors.filter(usedColor => usedColor === color).length
+                ])
+            );
+
+            const minimumUsage = Math.min(...usageCount.values());
+            const leastUsedColors = candidateColors.filter(
+                color => usageCount.get(color) === minimumUsage
+            );
+
+            return leastUsedColors[getRandomValue(leastUsedColors.length)];
+        }
+
+        function getAvailablePlayerColors(name) {
+            const initials = getInitials(name);
+            const colorsUsedBySameInitials = new Set(
+                players
+                    .filter(player => getInitials(player.name) === initials)
+                    .map(player => player.color)
+            );
+
+            const availableColors = PLAYER_COLORS.filter(
+                color => !colorsUsedBySameInitials.has(color)
+            );
+
+            return availableColors.length > 0 ? availableColors : PLAYER_COLORS;
+        }
+
+        function selectPlayerColor(color) {
+            selectedPlayerColor = color;
+            renderPlayerColorPicker();
+        }
+
+        function renderPlayerColorPicker() {
+            const picker = document.getElementById('player-color-picker');
+            if (!picker) return;
+
+            const name = document.getElementById('player-name-input').value.trim();
+            const availableColors = getAvailablePlayerColors(name || 'Player');
+
+            if (!selectedPlayerColor || !availableColors.includes(selectedPlayerColor)) {
+                selectedPlayerColor = choosePlayerColor(name || 'Player');
+            }
+
+            picker.innerHTML = '';
+
+            PLAYER_COLORS.forEach((color, index) => {
+                const option = document.createElement('button');
+                option.type = 'button';
+                option.className = 'player-color-option';
+                option.style.setProperty('--player-color', color);
+                option.setAttribute('role', 'radio');
+                option.setAttribute('aria-checked', String(color === selectedPlayerColor));
+                option.setAttribute('aria-label', `Color ${index + 1}`);
+                option.title = `Color ${index + 1}`;
+
+                const isAvailable = availableColors.includes(color);
+                if (!isAvailable) {
+                    option.classList.add('unavailable');
+                    option.disabled = true;
+                }
+
+                if (color === selectedPlayerColor) {
+                    option.classList.add('selected');
+                }
+
+                option.addEventListener('click', () => selectPlayerColor(color));
+                picker.appendChild(option);
+            });
+        }
+
+        function handlePlayerNameInput() {
+            renderPlayerColorPicker();
+        }
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            updateTexts();
+            showScreen('screen-registration');
+            renderPlayerColorPicker();
+            window.setTimeout(() => document.getElementById('player-name-input').focus(), 0);
+        }
+
+        function resetToLanguageSelect() {
+            const t = translations[currentLang];
+            const hasGameState = players.length > 0 || gameRound > 1 || gameEnded;
+            if (hasGameState && !window.confirm(t.confirmLanguageReset)) return;
+
+            players = [];
+            currentWord = "";
+            gameRound = 1;
+            remainingWriters = [];
+            activeWriterId = null;
+            roundAnswers = [];
+            currentPlayerIndex = 0;
+            passTargetPhase = "";
+            selectedVoteId = null;
+            gameEnded = false;
+
+            document.getElementById('players-list').innerHTML = '';
+            document.getElementById('goal-info-box').classList.add('hidden');
+            document.getElementById('player-name-input').value = '';
+            document.getElementById('reg-error').classList.add('hidden');
+            document.getElementById('btn-start').classList.add('hidden');
+            document.getElementById('persistent-footer-board').classList.add('hidden');
+            document.getElementById('restart-game-button').classList.add('hidden');
+            selectedPlayerColor = null;
+            showScreen('screen-language');
+        }
+
+        function restartGame() {
+            const t = translations[currentLang];
+            if (!window.confirm(t.confirmGameReset)) return;
+
+            resetToRegistration();
+        }
+
+        function resetToRegistration() {
+            gameRound = 1;
+            gameEnded = false;
+            players.forEach(p => p.score = 0);
+            document.getElementById('persistent-footer-board').classList.add('hidden');
+            document.getElementById('restart-game-button').classList.add('hidden');
+            selectedPlayerColor = choosePlayerColor('Player');
+            showScreen('screen-registration');
+            updateGoalInfo();
+            renderPlayerColorPicker();
+        }
+
+        function updateTexts() {
+            const t = translations[currentLang];
+            document.documentElement.lang = t.htmlLang;
+            document.title = t.pageTitle;
+            document.getElementById('txt-brand-name').innerText = t.pageTitle;
+            document.getElementById('txt-restart').innerText = t.restart;
+            document.querySelector('.header-actions').setAttribute('aria-label', t.lang);
+
+            document.getElementById('txt-language-title').innerText = t.languageTitle;
+            document.getElementById('txt-language-subtitle').innerText = t.languageSubtitle;
+            document.getElementById('txt-rules').innerText = t.rules;
+            document.getElementById('txt-lang-btn').innerText = t.lang;
+            document.getElementById('txt-reg-title').innerText = t.regTitle;
+            document.getElementById('txt-reg-subtitle').innerText = t.regSubtitle;
+            document.getElementById('player-name-input').placeholder = t.playerPlaceholder;
+            document.getElementById('txt-add-btn').innerText = t.add;
+            document.getElementById('btn-start').innerText = t.start;
+            document.getElementById('txt-round-label').innerText = `${t.roundLabel} ${gameRound}`;
+            document.getElementById('txt-word-subtitle').innerText = t.wordSubtitle;
+            document.getElementById('txt-start-guesses').innerText = t.startGuesses;
+            document.getElementById('txt-pass-to').innerText = t.passTo;
+            document.getElementById('txt-pass-hint').innerText = t.passHint;
+            document.getElementById('txt-im-ready').innerText = t.imReady;
+            document.getElementById('txt-what-means').innerText = t.whatMeans;
+            document.getElementById('meaning-input').placeholder = t.meaningPlaceholder;
+            document.getElementById('txt-send-meaning').innerText = t.sendMeaning;
+            document.getElementById('txt-vote-prompt').innerText = t.votePrompt;
+            document.getElementById('txt-confirm-vote').innerText = t.confirmVote;
+            document.getElementById('txt-board-title').innerText = t.boardTitle;
+            document.getElementById('txt-play-again').innerText = t.playAgain;
+            document.getElementById('txt-pending-title').innerText = t.pendingTitle;
+            document.getElementById('txt-writing-hint').innerText = t.clickToType;
+            document.getElementById('player-color-hint').innerText = t.colorHint;
+            updateGoalInfo();
+            renderPlayerColorPicker();
+        }
+
+        function updateGoalInfo() {
+            const t = translations[currentLang];
+            const count = players.length;
+            const goalBox = document.getElementById('goal-info-box');
+            
+            // Só mostra o texto de pontuação se puder começar (3 ou mais jogadores)
+            if (count >= 3) {
+                const maxScore = getMaxScore();
+                document.getElementById('txt-goal-info').innerText = t.goalText(count, maxScore);
+                goalBox.classList.remove('hidden');
+            } else {
+                goalBox.classList.add('hidden');
+            }
+        }
+
+        function handleEnter(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addPlayer();
+            }
+        }
+
+        function addPlayer() {
+            const input = document.getElementById('player-name-input');
+            const name = input.value.trim();
+            const errorElement = document.getElementById('reg-error');
+            
+            if (name.length < 2) {
+                errorElement.innerText = translations[currentLang].errorNameShort;
+                errorElement.classList.remove('hidden');
+                return;
+            }
+            if (players.length >= 12) {
+                errorElement.innerText = translations[currentLang].errorMaxPlayers;
+                errorElement.classList.remove('hidden');
+                return;
+            }
+            if (players.find(p => p.name.toLowerCase() === name.toLowerCase())) {
+                errorElement.innerText = translations[currentLang].errorDuplicateName;
+                errorElement.classList.remove('hidden');
+                return;
+            }
+
+            errorElement.classList.add('hidden');
+            const availableColors = getAvailablePlayerColors(name);
+            const color = availableColors.includes(selectedPlayerColor)
+                ? selectedPlayerColor
+                : choosePlayerColor(name);
+
+            players.push({
+                id: Date.now().toString() + Math.random(),
+                name: name,
+                color: color,
+                score: 0,
+                currentMeaning: "",
+                votedFor: null
+            });
+
+            input.value = "";
+            selectedPlayerColor = choosePlayerColor('Player');
+            renderPlayers();
+            updateGoalInfo();
+            renderPlayerColorPicker();
+            
+            if (players.length >= 3) {
+                document.getElementById('btn-start').classList.remove('hidden');
+            } else {
+                document.getElementById('btn-start').classList.add('hidden');
+            }
+        }
+
+        function renderPlayers() {
+            const container = document.getElementById('players-list');
+            container.innerHTML = "";
+
+            players.forEach((player, index) => {
+                const item = document.createElement('div');
+                item.className = 'flex items-center space-x-2 bg-slate-50 border border-slate-200/80 px-3.5 py-2 rounded-2xl shadow-sm min-w-0';
+
+                const avatar = document.createElement('div');
+                avatar.className = 'w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-semibold text-white shadow-sm shrink-0';
+                avatar.style.backgroundColor = player.color;
+                avatar.innerText = getInitials(player.name);
+
+                const name = document.createElement('span');
+                name.className = 'font-semibold text-slate-700 text-xs truncate max-w-[180px]';
+                name.innerText = player.name;
+
+                const removeButton = document.createElement('button');
+                removeButton.type = 'button';
+                removeButton.className = 'text-slate-300 hover:text-rose-500 font-semibold text-xs pl-1 transition cursor-pointer shrink-0 min-w-6 min-h-6';
+                removeButton.title = currentLang === 'pt' ? 'Excluir participante' : currentLang === 'en' ? 'Remove player' : 'Eliminar jugador';
+                removeButton.setAttribute('aria-label', removeButton.title);
+                removeButton.innerText = '✕';
+                removeButton.onclick = () => removePlayer(index);
+
+                item.append(avatar, name, removeButton);
+                container.appendChild(item);
+            });
+        }
+
+        function removePlayer(index) {
+            players.splice(index, 1);
+            renderPlayers();
+            updateGoalInfo();
+            renderPlayerColorPicker();
+            if (players.length < 3) {
+                document.getElementById('btn-start').classList.add('hidden');
+            }
+        }
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function startGame() {
+            if (players.length < 3) return;
+            gameRound = 1;
+            gameEnded = false;
+            players.forEach(p => p.score = 0);
+            document.getElementById('persistent-footer-board').classList.remove('hidden');
+            document.getElementById('restart-game-button').classList.remove('hidden');
+            setupDragScroll();
+            startRound();
+        }
+
+        function setupDragScroll() {
+            const container = document.getElementById('board-container');
+            if (container.dataset.dragInitialized) return;
+            container.dataset.dragInitialized = "true";
+
+            let isDragging = false;
+            let startX = 0;
+            let scrollLeft = 0;
+
+            container.addEventListener('pointerdown', event => {
+                if (event.pointerType === 'touch') return;
+                isDragging = true;
+                startX = event.clientX;
+                scrollLeft = container.scrollLeft;
+                container.setPointerCapture(event.pointerId);
+            });
+
+            container.addEventListener('pointerup', event => {
+                isDragging = false;
+                if (container.hasPointerCapture(event.pointerId)) {
+                    container.releasePointerCapture(event.pointerId);
+                }
+            });
+
+            container.addEventListener('pointercancel', () => {
+                isDragging = false;
+            });
+
+            container.addEventListener('pointermove', event => {
+                if (!isDragging) return;
+                event.preventDefault();
+                container.scrollLeft = scrollLeft - (event.clientX - startX) * 1.25;
+            });
+
+            container.addEventListener('wheel', event => {
+                if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+                event.preventDefault();
+                container.scrollLeft += event.deltaY;
+            }, { passive: false });
+        }
+
+        function startRound() {
+            players.forEach(p => {
+                p.currentMeaning = "";
+                p.votedFor = null;
+            });
+            remainingWriters = [...players];
+            const words = wordLists[currentLang];
+            currentWord = words[Math.floor(Math.random() * words.length)];
+            
+            const t = translations[currentLang];
+            document.getElementById('txt-round-label').innerText = `${t.roundLabel} ${gameRound}`;
+            document.getElementById('footer-round-indicator').innerText = `${t.roundLabel} ${gameRound}`;
+            document.getElementById('current-word-display').innerText = currentWord;
+            renderPersistentBoard();
+            showScreen('screen-word');
+        }
+
+        function startWritingMenu() {
+            if (remainingWriters.length === 0) {
+                prepareVotingPhase();
+                return;
+            }
+
+            const t = translations[currentLang];
+            document.getElementById('txt-writing-round').innerText = `${t.roundLabel} ${gameRound}`;
+            document.getElementById('writing-menu-word').innerText = currentWord;
+
+            const grid = document.getElementById('pending-writers-list');
+            grid.innerHTML = '';
+
+            remainingWriters.forEach(player => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'w-full flex items-center justify-between gap-3 p-4 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-2xl transition text-left group min-h-14';
+
+                const identity = document.createElement('div');
+                identity.className = 'flex items-center space-x-3 min-w-0';
+
+                const avatar = document.createElement('div');
+                avatar.className = 'w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-semibold text-white shadow-sm shrink-0';
+                avatar.style.backgroundColor = player.color;
+                avatar.innerText = getInitials(player.name);
+
+                const name = document.createElement('span');
+                name.className = 'font-semibold text-slate-800 text-sm group-hover:text-rose-600 transition truncate';
+                name.innerText = player.name;
+
+                const action = document.createElement('span');
+                action.className = 'text-xs font-semibold text-slate-600 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm shrink-0';
+                action.innerText = currentLang === 'pt' ? 'Digitar ✍️' : currentLang === 'en' ? 'Write ✍️' : 'Escribir ✍️';
+
+                identity.append(avatar, name);
+                button.append(identity, action);
+                button.onclick = () => {
+                    activeWriterId = player.id;
+                    setupInputScreen();
+                };
+                grid.appendChild(button);
+            });
+            showScreen('screen-writing-menu');
+        }
+
+        function setupInputScreen() {
+            const p = players.find(pl => pl.id === activeWriterId);
+            if (!p) return;
+            document.getElementById('input-word').innerText = currentWord;
+            const avatar = document.getElementById('input-avatar');
+            avatar.style.backgroundColor = p.color;
+            avatar.innerText = getInitials(p.name);
+            document.getElementById('input-player-name').innerText = p.name;
+            document.getElementById('meaning-input').value = "";
+            document.getElementById('input-error').classList.add('hidden');
+            showScreen('screen-input');
+            window.setTimeout(() => document.getElementById('meaning-input').focus(), 0);
+        }
+
+        function submitMeaning() {
+            const input = document.getElementById('meaning-input');
+            const errorElement = document.getElementById('input-error');
+            const val = input.value.trim();
+
+            if (val.length < 3) {
+                errorElement.innerText = translations[currentLang].errorMeaning;
+                errorElement.classList.remove('hidden');
+                input.focus();
+                return;
+            }
+
+            const player = players.find(pl => pl.id === activeWriterId);
+            if (!player) return;
+
+            player.currentMeaning = val;
+            remainingWriters = remainingWriters.filter(pl => pl.id !== activeWriterId);
+            activeWriterId = null;
+
+            if (remainingWriters.length === 0) {
+                prepareVotingPhase();
+            } else {
+                startWritingMenu();
+            }
+        }
+
+        function prepareVotingPhase() {
+            roundAnswers = players.map(p => ({
+                playerId: p.id,
+                meaning: p.currentMeaning
+            }));
+            
+            for (let i = roundAnswers.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [roundAnswers[i], roundAnswers[j]] = [roundAnswers[j], roundAnswers[i]];
+            }
+
+            currentPlayerIndex = 0;
+            passTargetPhase = "vote";
+            triggerPassDeviceForVoter();
+        }
+
+        function triggerPassDeviceForVoter() {
+            const p = players[currentPlayerIndex];
+            if (!p) return;
+            const avatar = document.getElementById('pass-avatar');
+            avatar.style.backgroundColor = p.color;
+            avatar.innerText = getInitials(p.name);
+            document.getElementById('pass-name').innerText = p.name;
+            document.getElementById('pass-name').style.color = p.color;
+            showScreen('screen-pass');
+        }
+
+        function acknowledgePass() {
+            if (passTargetPhase === "vote") {
+                setupVoteScreen();
+            }
+        }
+
+        function setupVoteScreen() {
+            const p = players[currentPlayerIndex];
+            if (!p) return;
+            document.getElementById('vote-word').innerText = currentWord;
+            const avatar = document.getElementById('vote-avatar');
+            avatar.style.backgroundColor = p.color;
+            avatar.innerText = getInitials(p.name);
+            document.getElementById('vote-player-name').innerText = p.name;
+            document.getElementById('vote-error').classList.add('hidden');
+            
+            const optionsContainer = document.getElementById('vote-options');
+            optionsContainer.innerHTML = "";
+            selectedVoteId = null;
+
+            roundAnswers.forEach(ans => {
+                const btn = document.createElement('button');
+                btn.className = "choice-button font-medium text-sm";
+                
+                if (ans.playerId === p.id) {
+                    btn.innerText = `"${ans.meaning}"`;
+                    btn.disabled = true;
+                    btn.classList.add("opacity-40", "cursor-not-allowed");
+                } else {
+                    btn.innerText = `"${ans.meaning}"`;
+                    btn.onclick = () => {
+                        Array.from(optionsContainer.children).forEach(c => {
+                            if (!c.disabled) c.classList.remove('selected');
+                        });
+                        btn.classList.add('selected');
+                        selectedVoteId = ans.playerId;
+                    };
+                }
+                optionsContainer.appendChild(btn);
+            });
+
+            showScreen('screen-vote');
+        }
+
+        function submitVote() {
+            const errorElement = document.getElementById('vote-error');
+            if (!selectedVoteId) {
+                errorElement.innerText = translations[currentLang].errorVote;
+                errorElement.classList.remove('hidden');
+                return;
+            }
+
+            const voter = players[currentPlayerIndex];
+            if (!voter) return;
+
+            voter.votedFor = selectedVoteId;
+            currentPlayerIndex++;
+
+            if (currentPlayerIndex < players.length) {
+                passTargetPhase = "vote";
+                triggerPassDeviceForVoter();
+            } else {
+                calculateScores();
+            }
+        }
+
+        function calculateScores() {
+            const maxScore = getMaxScore();
+
+            players.forEach(player => {
+                const votesReceived = players.filter(voter => voter.votedFor === player.id).length;
+                player.score = Math.min(player.score + votesReceived, maxScore);
+            });
+
+            renderPersistentBoard();
+
+            const winners = players.filter(player => player.score >= maxScore);
+            if (winners.length > 0) {
+                gameEnded = true;
+                showVictoryScreen(winners);
+                return;
+            }
+
+            gameEnded = false;
+            const t = translations[currentLang];
+            document.getElementById('txt-board-header').innerText = t.boardHeader;
+            document.getElementById('txt-board-sub').innerText = t.boardSub;
+            document.getElementById('txt-next-round').innerText = t.nextRound;
+            showScreen('screen-scoreboard');
+        }
+
+        function showVictoryScreen(winners) {
+            const t = translations[currentLang];
+            const maxScore = getMaxScore();
+            const winnerIds = new Set(winners.map(player => player.id));
+            const isTie = winners.length > 1;
+
+            document.getElementById('victory-title').innerText = isTie
+                ? t.tieTitle
+                : t.winnerTitle(winners[0].name);
+            document.getElementById('victory-subtitle').innerText = isTie
+                ? t.tieSubtitle(maxScore)
+                : t.winnerSubtitle(maxScore);
+
+            const podium = document.getElementById('victory-podium');
+            podium.innerHTML = "";
+
+            const sorted = [...players].sort((a, b) => {
+                if (b.score !== a.score) return b.score - a.score;
+                if (winnerIds.has(a.id) !== winnerIds.has(b.id)) return winnerIds.has(b.id) ? 1 : -1;
+                return a.name.localeCompare(b.name, t.htmlLang);
+            });
+
+            sorted.forEach((player, index) => {
+                const item = document.createElement('div');
+                item.className = 'flex items-center justify-between bg-white p-3 rounded-xl border border-slate-200 shadow-sm';
+
+                const identity = document.createElement('div');
+                identity.className = 'flex items-center space-x-2.5 min-w-0';
+
+                const rank = document.createElement('span');
+                rank.className = 'font-semibold text-xs text-slate-400 shrink-0';
+                rank.innerText = `#${index + 1}`;
+
+                const avatar = document.createElement('div');
+                avatar.className = 'w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-semibold text-white shadow-sm shrink-0';
+                avatar.style.backgroundColor = player.color;
+                avatar.innerText = getInitials(player.name);
+
+                const name = document.createElement('span');
+                name.className = 'font-semibold text-slate-800 text-xs truncate';
+                name.innerText = player.name;
+
+                const points = document.createElement('span');
+                points.className = 'font-semibold text-xs text-rose-600 shrink-0 ml-3';
+                points.innerText = `${player.score} ${t.points}`;
+
+                identity.append(rank, avatar, name);
+                item.append(identity, points);
+                podium.appendChild(item);
+            });
+
+            showScreen('screen-victory');
+        }
+
+        function renderPersistentBoard() {
+            const container = document.getElementById('board-container');
+            container.innerHTML = "";
+            
+            const MAX_SCORE = getMaxScore();
+            document.getElementById('footer-round-indicator').innerText = `${translations[currentLang].roundLabel} ${gameRound}`;
+
+            for (let i = 0; i <= MAX_SCORE; i++) {
+                const space = document.createElement('div');
+                space.className = 'board-space-footer';
+                space.innerText = i;
+                
+                const playersHere = players.filter(p => p.score === i);
+                if (playersHere.length > 0) {
+                    space.classList.add('has-players');
+                    const tokensContainer = document.createElement('div');
+                    tokensContainer.className = 'token-container';
+                    
+                    playersHere.forEach(p => {
+                        const token = document.createElement('div');
+                        token.className = 'player-token';
+                        token.style.backgroundColor = p.color;
+                        token.innerText = getInitials(p.name);
+                        token.title = p.name;
+                        tokensContainer.appendChild(token);
+                    });
+                    space.appendChild(tokensContainer);
+                }
+                container.appendChild(space);
+            }
+
+            if (players.length > 0) {
+                const maxScore = Math.max(...players.map(p => p.score));
+                const targetIndex = maxScore === MAX_SCORE ? maxScore : Math.min(maxScore + 1, MAX_SCORE);
+                const targetSpace = container.children[targetIndex];
+                
+                if (targetSpace) {
+                    const scrollTarget = targetSpace.offsetLeft - container.clientWidth + targetSpace.offsetWidth + 16;
+                    container.scrollTo({
+                        left: Math.max(0, scrollTarget),
+                        behavior: 'smooth'
+                    });
+                }
+            }
+        }
+
+        function handleRoundAction() {
+            if (gameEnded) {
+                resetToRegistration();
+            } else {
+                gameRound++;
+                startRound();
+            }
+        }
+
+        updateTexts();
+    </script>
+</body>
+</html>
