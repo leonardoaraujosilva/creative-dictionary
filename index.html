@@ -2,7 +2,7 @@
 <html lang="en-US">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Creative Dictionary</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -48,12 +48,21 @@
             color: var(--text);
             -webkit-tap-highlight-color: transparent;
             overflow-x: hidden;
+            width: 100%;
+            position: relative;
         }
 
         button,
         input,
         textarea {
             font: inherit;
+        }
+
+        input,
+        textarea {
+            font-size: 16px !important;
+            -webkit-appearance: none;
+            appearance: none;
         }
 
         button,
@@ -97,8 +106,8 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .glass-card {
@@ -139,6 +148,8 @@
             border-radius: 22px;
             background: rgba(255, 255, 255, 0.94);
             box-shadow: 0 12px 30px rgba(15, 23, 42, 0.10);
+            box-sizing: border-box;
+            max-width: 100vw;
         }
 
         .board-track-footer {
@@ -647,7 +658,7 @@
                 <p id="txt-reg-subtitle" class="text-rose-600 mb-6 font-semibold text-xs text-center">Minimum 3 players</p>
                 
                 <div class="flex gap-2 mb-4">
-                    <input autocomplete="name" enterkeyhint="done" type="text" id="player-name-input" placeholder="Player name..." class="flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-slate-900 font-medium text-sm" oninput="handlePlayerNameInput()" onkeydown="handleEnter(event)">
+                    <input autocomplete="name" enterkeyhint="done" type="text" id="player-name-input" placeholder="Player name..." class="flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-slate-900 font-medium" oninput="handlePlayerNameInput()" onkeydown="handleEnter(event)">
                     <button type="button" onclick="addPlayer()" id="txt-add-btn" class="bg-slate-900 text-white rounded-2xl px-5 font-semibold hover:bg-slate-800 transition text-sm">Add</button>
                 </div>
 
@@ -720,7 +731,7 @@
                     <h3 id="txt-what-means" class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">O que significa a palavra:</h3>
                     <h2 id="input-word" class="text-3xl font-semibold text-slate-900 tracking-tight"></h2>
                 </div>
-                <textarea id="meaning-input" rows="4" enterkeyhint="done" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 focus:outline-none focus:ring-2 focus:ring-slate-900 font-medium text-sm resize-none" placeholder="Invente uma definição convincente..."></textarea>
+                <textarea id="meaning-input" rows="4" enterkeyhint="done" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 focus:outline-none focus:ring-2 focus:ring-slate-900 font-medium resize-none" placeholder="Invente uma definição convincente..."></textarea>
                 <p id="input-error" class="text-rose-500 text-xs font-semibold hidden"></p>
                 <button type="button" onclick="submitMeaning()" id="txt-send-meaning" class="btn-primary w-full py-4 rounded-2xl font-semibold text-sm shadow-md">Confirmar e Voltar ➡️</button>
             </div>
@@ -879,7 +890,7 @@
                 pageTitle: "Diccionario Creativo",
                 languageTitle: "Diccionario Creativo",
                 languageSubtitle: "Selecciona tu idioma para comenzar",
-                rules: "Reglas",
+                rules: "Regras",
                 lang: "Idioma",
                 restart: "Recomenzar",
                 regTitle: "Diccionario Creativo",
@@ -1251,7 +1262,6 @@
             const count = players.length;
             const goalBox = document.getElementById('goal-info-box');
             
-            // Só mostra o texto de pontuação se puder começar (3 ou mais jogadores)
             if (count >= 3) {
                 const maxScore = getMaxScore();
                 document.getElementById('txt-goal-info').innerText = t.goalText(count, maxScore);
@@ -1487,7 +1497,7 @@
             document.getElementById('meaning-input').value = "";
             document.getElementById('input-error').classList.add('hidden');
             showScreen('screen-input');
-            window.setTimeout(() => document.getElementById('meaning-input').focus(), 0);
+            window.setTimeout(() => document.getElementById('meaning-input').focus(), 50);
         }
 
         function submitMeaning() {
